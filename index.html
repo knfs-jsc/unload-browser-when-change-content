@@ -5,6 +5,25 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Trang Chỉnh Sửa Nội Dung</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+	<style>
+		#popup {
+			display: none;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			padding: 20px;
+			background-color: white;
+			border: 2px solid black;
+			z-index: 1000;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+		}
+
+		#popup button {
+			margin-top: 10px;
+		}
+	</style>
 </head>
 
 <body>
@@ -13,8 +32,15 @@
 	<textarea id="editor" rows="10" cols="50" placeholder="Nhập nội dung ở đây..."></textarea>
 	<button onclick="saveContent()">Lưu nội dung</button>
 
+	<div id="popup">
+		<p>Bạn có thay đổi chưa lưu. Bạn có chắc chắn muốn rời khỏi trang?</p>
+		<button onclick="stayOnPage()">Ở lại</button>
+		<button onclick="leavePage()">Rời trang</button>
+	</div>
+
 	<script>
 		const editor = document.getElementById('editor');
+		const popup = document.getElementById('popup');
 
 		editor.addEventListener('input', function () {
 			localStorage.setItem('unsavedChanges', 'true');
@@ -25,13 +51,48 @@
 			alert('Nội dung đã được lưu.');
 		}
 
-		function handleBeforeUnload(event) {
+		function showPopup() {
 			if (localStorage.getItem('unsavedChanges')) {
-				event.preventDefault();
-				event.returnValue = '';
+				popup.style.display = 'block';
 			}
 		}
-		window.addEventListener('beforeunload', handleBeforeUnload);
+
+		function stayOnPage() {
+			popup.style.display = 'none';
+		}
+
+		function leavePage() {
+			localStorage.removeItem('unsavedChanges'); 
+			popup.style.display = 'none';
+		}
+
+		window.addEventListener('beforeunload', function (event) {
+			if (localStorage.getItem('unsavedChanges')) {
+				const message = 'Bạn có thay đổi chưa lưu. Bạn có chắc chắn muốn rời khỏi trang?';
+				event.returnValue = message; 
+				return message;
+			}
+		});
+
+		window.addEventListener('popstate', function (event) {
+			if (localStorage.getItem('unsavedChanges')) {
+				showPopup();
+			}
+		});
+
+		const hammertime = new Hammer(document.body);
+
+		hammertime.on('swipeleft', function () {
+			if (localStorage.getItem('unsavedChanges')) {
+				showPopup();
+			}
+		});
+
+		hammertime.on('swiperight', function () {
+			if (localStorage.getItem('unsavedChanges')) {
+				showPopup();
+			}
+		});
 	</script>
 
 </body>
