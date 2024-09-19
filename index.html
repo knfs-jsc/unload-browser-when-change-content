@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Trang Chỉnh Sửa Nội Dung</title>
+</head>
+
+<body>
+
+	<h1>Chỉnh sửa nội dung</h1>
+	<textarea id="editor" rows="10" cols="50" placeholder="Nhập nội dung ở đây..."></textarea>
+	<button onclick="saveContent()">Lưu nội dung</button>
+
+	<script>
+		const editor = document.getElementById('editor');
+
+		editor.addEventListener('input', function () {
+			localStorage.setItem('unsavedChanges', 'true');
+		});
+
+		function saveContent() {
+			localStorage.removeItem('unsavedChanges');
+			alert('Nội dung đã được lưu.');
+		}
+
+		function handleBeforeUnload(event) {
+			if (localStorage.getItem('unsavedChanges')) {
+				event.preventDefault();
+				event.returnValue = '';
+			}
+		}
+		window.addEventListener('beforeunload', handleBeforeUnload);
+	</script>
+
+</body>
+
+</html>
